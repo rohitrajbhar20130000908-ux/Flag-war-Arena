@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -420,4 +420,6 @@
         const manifestLink = document.createElement('link');
         manifestLink.rel = 'manifest';
         manifestLink.href = manifestURL;
-        document.head.appendChild(manifestLink)
+        document.head.appendChild(manifestLink);
+
+        // Register inline Service Worker if support
