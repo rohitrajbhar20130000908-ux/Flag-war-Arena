@@ -1,0 +1,425 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#090d16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Flag Arena" />
+  <title>Country Flag Arena | Created by Xenobit Live</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Orbitron for Esports Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --neon-cyan: #00f5d4;
+      --neon-gold: #ffd166;
+      --neon-pink: #ff2a85;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(circle at 50% 25%, rgba(0, 245, 212, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(255, 42, 133, 0.08) 0%, transparent 50%);
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    .font-display {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Animated Glowing CTA Banner */
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 14px rgba(0, 245, 212, 0.35), inset 0 0 10px rgba(255, 42, 133, 0.25);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 24px rgba(255, 42, 133, 0.65), inset 0 0 14px rgba(0, 245, 212, 0.4);
+        transform: scale(1.018);
+      }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .cta-banner {
+      background: linear-gradient(90deg, #ff2a85, #7928ca, #00d2ff, #ff2a85);
+      background-size: 300% 300%;
+      animation: gradientShift 4s ease infinite, pulseGlow 2.4s ease-in-out infinite;
+    }
+
+    .xenobit-badge {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.85));
+      border: 1px solid rgba(0, 245, 212, 0.45);
+      box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);
+    }
+
+    /* Custom Scrollbar for Leaderboard */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 245, 212, 0.35);
+      border-radius: 9999px;
+    }
+
+    canvas {
+      display: block;
+      touch-action: manipulation;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-between min-h-dvh p-2 sm:p-4">
+
+  <!-- TOP HEADER: Brand Badge + Install Button + Audio Toggle -->
+  <header class="w-full max-w-5xl flex flex-wrap items-center justify-between gap-2 z-20">
+    <!-- Created by Xenobit Live Badge -->
+    <div class="xenobit-badge flex items-center gap-2 px-3 py-1.5 rounded-full">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+      </span>
+      <span class="text-xs sm:text-sm font-extrabold tracking-wide bg-gradient-to-r from-cyan-300 via-white to-amber-300 bg-clip-text text-transparent">
+        Created by Xenobit Live
+      </span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <!-- Voice / Audio Toggle -->
+      <button id="btnAudio" onclick="toggleAudio()" title="Toggle Voice & Sound"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/90 hover:bg-slate-700 border border-cyan-500/40 text-xs font-bold text-cyan-300 transition active:scale-95">
+        <span id="audioIcon">🔊</span>
+        <span id="audioLabel" class="hidden sm:inline">Voice ON</span>
+      </button>
+
+      <!-- Install on Phone Button -->
+      <button id="btnInstallApp" onclick="triggerInstallFlow()"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition active:scale-95">
+        <span>📲</span>
+        <span>Install App</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- VIRAL CALL TO ACTION BANNER -->
+  <div class="w-full max-w-lg my-2 z-20">
+    <div class="cta-banner rounded-2xl p-[1.5px]">
+      <div class="bg-slate-950/85 backdrop-blur-md rounded-2xl px-4 py-2 text-center">
+        <p class="text-sm sm:text-base font-black tracking-wide text-white drop-shadow">
+          💬 Comment your favourite country! 👇🔥
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN ARENA & SIDEBAR GRID -->
+  <main class="w-full max-w-5xl flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 items-center my-1">
+
+    <!-- LEFT / CENTER: GAME ARENA -->
+    <section class="lg:col-span-7 flex flex-col items-center justify-center w-full">
+
+      <!-- Round Stats Strip -->
+      <div class="w-full max-w-[460px] flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-2xl px-3.5 py-2 mb-2 shadow-inner">
+        <div class="flex flex-col">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Round</span>
+          <span id="statRound" class="font-display text-sm sm:text-base font-extrabold text-amber-400">#1</span>
+        </div>
+
+        <div class="flex flex-col items-center">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Alive Flags</span>
+          <div class="flex items-baseline gap-1">
+            <span id="statAlive" class="font-display text-base sm:text-lg font-black text-cyan-400">195</span>
+            <span id="statTotal" class="text-xs text-slate-500 font-bold">/ 195</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-end">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Speed</span>
+          <span id="statSpeed" class="font-display text-sm sm:text-base font-extrabold text-pink-400">1.0x</span>
+        </div>
+      </div>
+
+      <!-- Perfect Square Responsive Container for Circular Canvas -->
+      <div id="arenaWrapper" class="relative w-full max-w-[460px] aspect-square flex items-center justify-center">
+        <canvas id="arenaCanvas" class="w-full h-full rounded-3xl"></canvas>
+
+        <!-- Eliminated Floating Toast Banner inside Arena Top -->
+        <div id="elimToast" class="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-300 z-10">
+          <div class="flex items-center gap-2 bg-slate-950/90 border border-rose-500/60 px-3.5 py-1.5 rounded-full shadow-lg shadow-rose-500/20">
+            <img id="elimToastFlag" src="" alt="" class="w-5 h-3.5 object-cover rounded-sm hidden" />
+            <span id="elimToastEmoji" class="text-sm">🏳️</span>
+            <span id="elimToastText" class="text-xs font-extrabold text-rose-300 whitespace-nowrap">Eliminated!</span>
+          </div>
+        </div>
+
+        <!-- Winner Overlay Modal (Auto-closes for Next Round) -->
+        <div id="winnerOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center p-5 text-center z-20 border border-amber-400/40">
+          <span class="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-extrabold uppercase tracking-widest mb-2">
+            🏆 Round Champion 🏆
+          </span>
+          <div class="relative my-2">
+            <div class="absolute inset-0 bg-amber-400/30 blur-xl rounded-full"></div>
+            <img id="winnerFlagImg" src="" alt="Winner Flag" class="relative w-28 h-20 object-cover rounded-2xl border-2 border-amber-300 shadow-2xl mx-auto" />
+            <div id="winnerFlagEmoji" class="hidden relative text-6xl">🏆</div>
+          </div>
+          <h2 id="winnerName" class="font-display text-2xl sm:text-3xl font-black text-white mt-2 tracking-wide">
+            INDIA
+          </h2>
+          <p class="text-xs text-cyan-300 font-semibold mt-1">
+            Created by Xenobit Live
+          </p>
+          <div class="mt-4 bg-slate-900/90 border border-slate-700 px-4 py-2 rounded-full">
+            <p class="text-xs font-bold text-slate-300">
+              Next round starting in <span id="nextRoundCountdown" class="text-amber-400 font-display text-sm font-black">4</span>s...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPEED & GAME CONTROLS -->
+      <div class="w-full max-w-[460px] bg-slate-900/85 border border-slate-800 rounded-2xl p-3 mt-2 shadow-lg">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-xs font-bold text-slate-300 flex items-center gap-1">
+            ⚡ Arena Speed:
+          </span>
+          <div class="flex items-center gap-1">
+            <button onclick="setSpeed(0.5)" data-speed="0.5" class="speed-btn px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">0.5x</button>
+            <button onclick="setSpeed(1)" data-speed="1" class="speed-btn px-2 py-1 rounded-lg text-[11px] font-bold bg-cyan-500 text-slate-950 transition">1x</button>
+            <button onclick="setSpeed(1.5)" data-speed="1.5" class="speed-btn px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">1.5x</button>
+            <button onclick="setSpeed(2)" data-speed="2" class="speed-btn px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">2x</button>
+            <button onclick="setSpeed(3)" data-speed="3" class="speed-btn px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">3x</button>
+          </div>
+        </div>
+
+        <!-- Smooth Speed Slider -->
+        <input id="speedSlider" type="range" min="0.25" max="4" step="0.25" value="1"
+          oninput="setSpeed(parseFloat(this.value))"
+          class="w-full accent-cyan-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer mb-2.5" />
+
+        <!-- Action Buttons Row -->
+        <div class="grid grid-cols-3 gap-2">
+          <button id="btnPause" onclick="togglePause()"
+            class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-white transition active:scale-95">
+            ⏸️ Pause
+          </button>
+          <button onclick="startNewRound()"
+            class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-cyan-300 transition active:scale-95">
+            🔄 New Round
+          </button>
+          <button onclick="testVoice()"
+            class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-amber-300 transition active:scale-95">
+            🎙️ Test Voice
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT SIDEBAR: LIVE LEADERBOARD & RECENT KNOCKOUTS -->
+    <aside class="lg:col-span-5 w-full max-w-[460px] mx-auto flex flex-col gap-3">
+
+      <!-- Live Leaderboard Card -->
+      <div class="bg-slate-900/85 border border-slate-800 rounded-2xl p-3.5 shadow-xl">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🏆</span>
+            <h3 class="font-display text-sm font-extrabold tracking-wide text-amber-400 uppercase">
+              Global Leaderboard
+            </h3>
+          </div>
+          <button onclick="confirmResetLeaderboard()" class="text-[11px] text-slate-400 hover:text-rose-400 font-semibold transition">
+            Reset
+          </button>
+        </div>
+
+        <div id="leaderboardList" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Recent Eliminations Feed -->
+      <div class="bg-slate-900/85 border border-slate-800 rounded-2xl p-3.5 shadow-xl">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+            💥 Recent Eliminations
+          </span>
+          <span class="text-[11px] text-slate-400 font-semibold">Auto-Announced</span>
+        </div>
+        <div id="recentElimsList" class="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
+          <span class="text-xs text-slate-500 italic">Waiting for first elimination...</span>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full max-w-5xl text-center py-1.5 text-[11px] text-slate-500">
+    Country Flag Arena • <span class="text-cyan-400 font-semibold">Created by Xenobit Live</span> • 195 Countries Battle Royale
+  </footer>
+
+  <!-- INSTALL APP / PWA GUIDE MODAL -->
+  <div id="installModal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-md w-full p-5 shadow-2xl relative">
+      <button onclick="closeInstallModal()" class="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center font-bold">
+        ✕
+      </button>
+
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-2xl shadow-lg">
+          🌍
+        </div>
+        <div>
+          <h3 class="font-display text-base font-black text-white">Install Flag Arena App</h3>
+          <p class="text-xs text-cyan-300 font-semibold">Created by Xenobit Live</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Is game ko apne phone ki Home Screen par app ki tarah install karne ke liye neeche diye gaye steps follow karein:
+      </p>
+
+      <!-- Direct Install Prompt Button (if supported by browser) -->
+      <div id="nativeInstallSection" class="hidden mb-3">
+        <button onclick="triggerNativePrompt()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-sm shadow-lg active:scale-95 transition">
+          ⬇️ Install Directly on Device
+        </button>
+      </div>
+
+      <div class="space-y-2.5 text-xs bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800">
+        <div>
+          <p class="font-bold text-emerald-400 mb-0.5">📱 Android (Chrome):</p>
+          <p class="text-slate-300">1. Browser ke top-right me <span class="font-bold text-white">⋮ (3 dots)</span> par tap karein.<br/>2. <span class="font-bold text-white">"Add to Home screen"</span> ya <span class="font-bold text-white">"Install app"</span> select karein.</p>
+        </div>
+        <div class="border-t border-slate-800 pt-2">
+          <p class="font-bold text-sky-400 mb-0.5">🍎 iPhone / iPad (Safari):</p>
+          <p class="text-slate-300">1. Neeche <span class="font-bold text-white">Share icon (⬆️)</span> par tap karein.<br/>2. Scroll karke <span class="font-bold text-white">"Add to Home Screen"</span> par tap karein.</p>
+        </div>
+      </div>
+
+      <!-- Copy App Link Helper -->
+      <div class="mt-3 flex items-center gap-2">
+        <input id="shareUrlInput" type="text" readonly class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-[11px] text-slate-300 outline-none" />
+        <button onclick="copyGameLink()" id="btnCopyLink" class="px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs whitespace-nowrap transition">
+          📋 Copy Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM RESET MODAL (No browser confirm() used) -->
+  <div id="resetModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xs w-full p-4 text-center shadow-2xl">
+      <h4 class="font-display text-sm font-bold text-white mb-1">Reset Leaderboard?</h4>
+      <p class="text-xs text-slate-400 mb-4">Sabhi countries ke wins aur points zero ho jayenge.</p>
+      <div class="flex gap-2">
+        <button onclick="closeResetModal()" class="flex-1 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Cancel</button>
+        <button onclick="executeResetLeaderboard()" class="flex-1 py-2 rounded-xl bg-rose-600 text-xs font-bold text-white">Yes, Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * 1. PWA SETUP (Dynamic Manifest + App Icon + Service Worker)
+     * ============================================================================
+     */
+    (function setupPWA() {
+      try {
+        // Generate a crisp 512x512 icon via canvas for PWA manifest & Apple touch icon
+        const iconCanvas = document.createElement('canvas');
+        iconCanvas.width = 512;
+        iconCanvas.height = 512;
+        const ictx = iconCanvas.getContext('2d');
+
+        // Background gradient
+        const grad = ictx.createLinearGradient(0, 0, 512, 512);
+        grad.addColorStop(0, '#090d16');
+        grad.addColorStop(1, '#1e293b');
+        ictx.fillStyle = grad;
+        ictx.fillRect(0, 0, 512, 512);
+
+        // Glowing Arena Ring
+        ictx.beginPath();
+        ictx.arc(256, 256, 190, 0.25, Math.PI * 2 - 0.25);
+        ictx.strokeStyle = '#00f5d4';
+        ictx.lineWidth = 24;
+        ictx.lineCap = 'round';
+        ictx.stroke();
+
+        // Globe / Trophy Center Text
+        ictx.font = 'bold 140px sans-serif';
+        ictx.textAlign = 'center';
+        ictx.textBaseline = 'middle';
+        ictx.fillText('🌍', 256, 240);
+
+        ictx.font = '900 38px sans-serif';
+        ictx.fillStyle = '#ffd166';
+        ictx.fillText('FLAG ARENA', 256, 395);
+
+        const iconDataUrl = iconCanvas.toDataURL('image/png');
+
+        // Attach Apple Touch Icon
+        const appleLink = document.createElement('link');
+        appleLink.rel = 'apple-touch-icon';
+        appleLink.href = iconDataUrl;
+        document.head.appendChild(appleLink);
+
+        // Create Web App Manifest dynamically
+        const manifest = {
+          name: 'Country Flag Arena - Xenobit Live',
+          short_name: 'Flag Arena',
+          description: 'Viral Country Flag Battle Royale Arena created by Xenobit Live',
+          start_url: window.location.href,
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#090d16',
+          theme_color: '#090d16',
+          icons: [
+            {
+              src: iconDataUrl,
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
+            }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = manifestURL;
+        document.head.appendChild(manifestLink);
+
+        // Register inline Service Worker if suppo
